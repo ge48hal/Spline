@@ -1,0 +1,37 @@
+
+name : CI Pipeline
+
+on : 
+    pull_request : 
+        branches: ["master"]
+
+jobs :
+    build :
+        runs-on : ubuntu-latest
+
+        strategy:
+          matrix:
+            openmp: [ON, OFF]
+
+        steps : 
+            - name : Checkout code
+              uses : actions/checkout@v4
+
+            - name : Set up Cmake
+              uses: lukka/get-cmake@latest
+
+            - name : Create build directory
+              run : mkdir build-${{matrix.openmp}}
+            
+            - name : Configure Cmake 
+              run : cmake -B build-${{matrix.openmp}}  -DCMAKE_BUILD_TYPE=Debug -DOPENMP=${{matrix.openmp}}
+            
+            - name : Build project 
+              run : cmake --build ${{github.workspace}}/build-${{matrix.openmp}}
+            
+            - name : Compiler check
+              run : g++ --version
+                
+            - name: Run tests
+              working-directory: build-${{ matrix.openmp }}
+              run: ctest -V
