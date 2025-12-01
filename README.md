@@ -1,4 +1,4 @@
-# Spline Toolkit
+# Spline 
 
 A small C++20 project for reading ε–σ data, preprocessing a polyline at a given strain cutoff, constructing a closed polygon, and computing geometric quantities (moments) using shoelace.
 
