@@ -4,6 +4,9 @@ name : CI Pipeline
 on : 
     pull_request : 
         branches: ["master"]
+    push :
+        branches: ["master"]
+    workflow_dispatch :
 
 jobs :
     build :
@@ -31,7 +34,7 @@ jobs :
             
             - name : Compiler check
               run : g++ --version
-                
+            
             - name: Run tests
               working-directory: build-${{ matrix.openmp }}
               run: ctest -V
