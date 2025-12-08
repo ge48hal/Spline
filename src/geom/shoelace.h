@@ -14,6 +14,8 @@ namespace geom {
 
         static std::pair<double,double> calculateAreaAndMomentum(const Points& points);
 
+        static std::pair<double,double> calculateAreaAndMomentum_simd(const Points& points);
+
     };
 
 }

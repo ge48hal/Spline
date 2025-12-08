@@ -53,7 +53,35 @@ double Shoelace:: calculateMomentum(const Points& points) {
     return std::abs(momentum) / 6.0;
 }
 
-std :: pair<double, double> Shoelace:: calculateAreaAndMomentum(const Points& points) {
+std::pair<double, double> Shoelace:: calculateAreaAndMomentum(const Points& points) {
+    double area = 0.0;
+    double momentum = 0.0;
+    size_t n = points.size();
+
+    if(n < 3) {
+        return std::make_pair(0.0, 0.0); // Invalid input
+    }
+
+    const auto& eps = points.get_epsilon();
+    const auto& sig = points.get_sigma();
+    
+    for (size_t i = 0; i < n - 1; ++i) {
+        size_t j = i + 1; // Next vertex index, wrapping around
+        double tmp_area = eps[i] * sig[j] - eps[j] * sig[i];
+        area += tmp_area;
+
+        momentum += (eps[i] + eps[j]) * tmp_area;
+    }
+
+    area = area + eps[n - 1] * sig[0] - eps[0] * sig[n - 1];
+    
+    area = std::abs(area) * 0.5;
+    momentum = std::abs(momentum) / 6.0;
+
+    return std::make_pair(area, momentum);
+}
+
+std :: pair<double, double> Shoelace:: calculateAreaAndMomentum_simd(const Points& points) {
     double area = 0.0;
     double momentum = 0.0;
     size_t n = points.size();
