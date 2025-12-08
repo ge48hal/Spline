@@ -11,7 +11,7 @@
 int main() {
 
     using clock = std::chrono::high_resolution_clock;
-    auto start_time = clock::now();
+
 
     /////////////////////////////////////////////////////////////////////////
     // 1) Python _cc = [[0/1000,0],[3/1000,180],[10/1000,180]]
@@ -43,10 +43,22 @@ int main() {
 
     /*TODO : INPUT FILE FORMAT */
     /////////////////////////////////////////////////////////////////////////
-
+    auto start_time = clock::now();
 
     std::vector<double> m0cc = computeAreaTimeslices(timeslices);      // Python m0(_cc_pad)
     std::vector<double> m1cc = computeMomentumTimeslices(timeslices);  // Python m1(_cc_pad)
+
+
+    auto end_time = clock::now();
+    spdlog::info("Execution time1 : {} ns",
+            std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count());
+
+    auto start_time2 = clock::now();
+
+    std::vector<std::pair<double,double>> am_cc = computeAreaAndMomentumTimeslices(timeslices);
+    auto end_time2 = clock::now();
+    spdlog::info("Execution time2 : {} ns",
+            std::chrono::duration_cast<std::chrono::nanoseconds>(end_time2 - start_time2).count());
 
     for (std::size_t t = 0; t < 30; ++t) {
         std::cout << "eps_cc[" << t << "] = " << eps_cc[t]
@@ -54,9 +66,6 @@ int main() {
                 << ", m1cc = " << m1cc[t] << '\n';
     }
 
-    auto end_time = clock::now();
-    spdlog::info("Execution time: {} ns",
-            std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count());
 
     return 0;
 }

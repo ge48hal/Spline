@@ -48,6 +48,7 @@ target_compile_options(Spline PRIVATE
     # Release mode options (Optimization and native architecture)
     $<$<CONFIG:Release>:-O3>
     $<$<CONFIG:Release>:-march=native>
+    -mavx2
 )
 target_link_options(Spline PRIVATE
     # Linker flags for Debug build
@@ -89,6 +90,11 @@ target_link_libraries(tests PRIVATE
     GTest::gtest    
     spdlog::spdlog
 )
+
+target_compile_options(tests PRIVATE
+    -march=native
+)
+
 set_property(TARGET tests PROPERTY ENVIRONMENT "GTEST_COLOR=1")
 
 gtest_discover_tests(tests)

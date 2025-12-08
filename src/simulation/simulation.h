@@ -10,4 +10,6 @@ std::vector<double> computeAreaTimeslices(std::span<const Points> slices);
 
 std::vector<double> computeMomentumTimeslices(std::span<const Points> slices);
 
+std::vector<std::pair<double,double>> computeAreaAndMomentumTimeslices(std::span<const Points> slices);
+
 
