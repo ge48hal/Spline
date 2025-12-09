@@ -96,8 +96,8 @@ std :: pair<double, double> Shoelace:: calculateAreaAndMomentum_simd(const Point
 
     __m256d area_simd = _mm256_setzero_pd();
     __m256d momentum_simd = _mm256_setzero_pd();
-
-    for(; i + 5 < n; i += 4){
+    
+    for(i = 0; i + 5 < n; i += 4){
         __m256d eps_i_simd = _mm256_loadu_pd(&eps[i]);
         __m256d sig_i_simd = _mm256_loadu_pd(&sig[i]);
 
