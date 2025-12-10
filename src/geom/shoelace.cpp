@@ -48,7 +48,7 @@ double Shoelace:: calculateMomentum(const Points& points) {
     for (size_t i = 0; i < n -1; ++i) {
 
         momentum += (eps[i] + eps[i+1]) * (eps[i] * sig[i+1] - eps[i+1] * sig[i]);
-    }
+    }   
     
     return std::abs(momentum) / 6.0;
 }

@@ -53,7 +53,6 @@ std::pair<std::size_t,double> _preprocess_polyline(double eps_cut, const Points&
     return {idx, result};
 }
 
-
 // Preprocessing step equivalent to Python prep()
 // Constructs a closed polygon for shoelace: trim, add intersection point,
 // drop a vertical segment, and add the origin point.

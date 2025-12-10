@@ -23,7 +23,7 @@ int main() {
 
 
     // 2) eps_cc: 0 ~ 10/1000, num_timesteps
-    const std::size_t num_timesteps = 200;
+    const std::size_t num_timesteps = 10000;
     std::vector<double> eps_cc(num_timesteps);
 
     const double eps_min = 0.0;
