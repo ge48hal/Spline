@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)  # Ensure compiler-specific features work
 
+option(OMP "Enable Parallel (OpenMp)" ON)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
 
@@ -66,10 +67,13 @@ target_compile_options(spline_c++ PUBLIC
 
 
 target_link_libraries(spline_c++ PUBLIC
-            GTest::gtest
-            OpenMP::OpenMP_CXX 
-            
-)   
+            spdlog::spdlog
+)  
+
+if(OMP)
+    target_link_libraries(spline_c++ PUBLIC  OpenMP::OpenMP_CXX )
+endif()
+
 # -------------------------------------------------------
 # Spline executable settings (Spline main file)
 # -------------------------------------------------------
@@ -78,6 +82,7 @@ add_executable(Spline ${SPLINE_MAIN})
 
 target_link_libraries(Spline PRIVATE
     spline_c++
+    
 )
 
 target_include_directories(Spline
