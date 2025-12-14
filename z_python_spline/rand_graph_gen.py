@@ -57,9 +57,9 @@ def points_to_csv(pairs, filename: str):
     print("CSV file generated:", filename)
 
 if __name__ == "__main__":
-    name = "random_points.csv"
-    n = 10000
-    n_keypoints = random.randint(2,100)
+    name = "random_graph.csv"
+    n = 20000
+    n_keypoints = random.randint(3, 10)
     e_min = 0.1
     e_max = 1000.0
     s_min = 0.1
