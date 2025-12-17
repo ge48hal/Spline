@@ -1,4 +1,5 @@
 /build/
 random_graph.csv
 /z_python_spline/__pycache__
-/z_python_spilne/*.so
+/z_python_spline/*.so
+/z_python_spline/.pytest_cache

@@ -7,6 +7,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)  # Ensure compiler-specific features work
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 option(OMP "Enable Parallel (OpenMp)" ON)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
@@ -32,7 +34,7 @@ file(GLOB_RECURSE MY_SRC
 
 list(REMOVE_ITEM MY_SRC "${SPLINE_MAIN}" "${PYBIND_SRC}")
 
-add_library(spline_c++ ${MY_SRC})   
+add_library(spline_c++ SHARED ${MY_SRC})   
 
 
 set_target_properties(spline_c++ PROPERTIES
@@ -42,6 +44,7 @@ set_target_properties(spline_c++ PROPERTIES
         ENABLE_EXPORTS ON
         POSITION_INDEPENDENT_CODE ON
 )
+
 
 # Include directories
 target_include_directories(spline_c++ PUBLIC
@@ -142,7 +145,6 @@ gtest_discover_tests(tests)
 # -------------------------------------------------------
 # pybind11 Python module settings
 # -------------------------------------------------------
-
 
 find_package(pybind11 CONFIG REQUIRED)
 
