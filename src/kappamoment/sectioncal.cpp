@@ -7,6 +7,7 @@ static inline double clamp(double x, double lo, double hi){
 }
 
 SectionState SectionCal::eval(double eps_ca, double kappa) const {
+    
     SectionState s;
 
     const double h_u = cs.h_u_mm();
@@ -24,11 +25,14 @@ SectionState SectionCal::eval(double eps_ca, double kappa) const {
     s.jac_cc = s.h_cc/ s.eps_cc;
     s.jac_ft = s.h_ft/s.eps_ft;
 
-    double m0_cc = geom::Shoelace::calculateArea(preprocess::prep(5, cc));
-    double m0_ft = geom::Shoelace::calculateArea(preprocess::prep(-5,ft));
+    std::pair<double,double> m_cc = geom::Shoelace::calculateAreaAndMomentum(preprocess::prep(s.eps_cc, cc));
+    std::pair<double,double> m_ft = geom::Shoelace::calculateAreaAndMomentum(preprocess::prep(s.eps_ft, ft));
 
-    s.f_cc = m0_cc * s.jac_cc;
-    s.f_ft = m0_ft * s.jac_ft;
+    s.f_cc = m_cc.first * s.jac_cc;
+    s.f_ft = m_ft.first * s.jac_ft;
+
+    s.m_ca = m_cc.second * s.jac_cc * s.jac_cc +
+             m_ft.second * s.jac_ft * s.jac_ft;
 
     return s;
 }

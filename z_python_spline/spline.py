@@ -6,13 +6,11 @@ from timeit import default_timer as timer
 from scipy import interpolate
 import plotgraph
 import spline_ref
-
 import splinepy
-
 
 if __name__ == "__main__":
     
-    df = pd.read_csv("random_points.csv")
+    df = pd.read_csv("random_graph.csv")
     
     eps = df["eps"].astype(np.float64).to_list()
     sig = df["sig"].astype(np.float64).to_list()

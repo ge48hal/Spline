@@ -52,6 +52,14 @@ def test_random_curve_area_momentum_match(i):
     
 
 
+    # ---- SIMD ----
+    t0 = time.perf_counter()
+    points = splinepy.Points(eps, sig)
+    pts = splinepy.preprocess(eps[-1], points)
+    a_simd, b_simd = splinepy.cal_area_momentum_simd(pts)
+    total_simd += time.perf_counter() - t0
+
+
     # ---- Regular C++ ----
     t0 = time.perf_counter()
     points = splinepy.Points(eps, sig)
@@ -59,14 +67,6 @@ def test_random_curve_area_momentum_match(i):
     a_reg, b_reg = splinepy.cal_area_momentum(pts)
     total_reg += time.perf_counter() - t0
     
-    
-    
-    # ---- SIMD ----
-    t0 = time.perf_counter()
-    points = splinepy.Points(eps, sig)
-    pts = splinepy.preprocess(eps[-1], points)
-    a_simd, b_simd = splinepy.cal_area_momentum_simd(pts)
-    total_simd += time.perf_counter() - t0
 
     # ---- Python Reference ----
     t0 = time.perf_counter()

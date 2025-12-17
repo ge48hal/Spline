@@ -21,7 +21,8 @@ struct SectionState {
 
 class SectionCal{
     public : 
-        SectionCal(const CrossSection&cs, Points cc, Points ft);
+        SectionCal(const CrossSection&cs,const Points& cc,const Points& ft)
+            : cs(cs), cc(cc), ft(ft) {};
 
         double forceresidual(double eps_ca, double kappa) const;
 
@@ -30,7 +31,6 @@ class SectionCal{
         SectionState eval(double eps_ca, double kappa) const;
     private:
         const CrossSection& cs;
-        Points cc;
-        Points ft;
-
+        const Points& cc;
+        const Points& ft;
 };
