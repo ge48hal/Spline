@@ -18,6 +18,7 @@ include(gtest)
 include(openmp)
 include(spdlog)
 include(GoogleTest)
+include(boost)
 
 # -------------------------------------------------------
 # SHARED LIBRARY spline_c++
@@ -68,10 +69,7 @@ target_compile_options(spline_c++ PUBLIC
     -mavx2
 )
 
-
-target_link_libraries(spline_c++ PUBLIC
-            spdlog::spdlog
-)  
+target_link_libraries(spline_c++ PRIVATE ${SPDLOG_TARGET})
 
 if(OMP)
     target_link_libraries(spline_c++ PUBLIC  OpenMP::OpenMP_CXX )
