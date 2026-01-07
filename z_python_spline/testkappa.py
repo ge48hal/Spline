@@ -1,15 +1,3 @@
-# testkappa.py
-#
-# Changes vs your current version:
-# 1) K.tolist() conversion is done ONCE outside timing.
-# 2) Python reference pads are RESET before every residual_and_moment() call
-#    because mp() mutates pads in-place (otherwise repeated runs are not comparable).
-# 3) interp1d uses assume_sorted=True for consistency (optional but safer/faster when sorted).
-#
-# Run:
-#   pytest -q
-#   pytest -m performance -s
-
 import numpy as np
 import pandas as pd
 import pytest
