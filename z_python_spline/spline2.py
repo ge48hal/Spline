@@ -60,7 +60,6 @@ if __name__ == "__main__":
 
     # --------------------------------------------------------
     # Example diagnostics (first successful point)
-    #   (eval() 제거된 버전 기준: residual/moment로 확인)
     # --------------------------------------------------------
     idx_ok = np.flatnonzero(ok)
     if idx_ok.size > 0:

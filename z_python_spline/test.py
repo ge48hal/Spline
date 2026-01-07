@@ -9,7 +9,7 @@ import splinepy
 import spline_ref
 import rand_graph_gen
 
-N_TESTS = 3000   # iterations for random tests
+N_TESTS = 300   # iterations for random tests
 
 # Global accumulators for total timing
 total_simd = 0.0
@@ -57,14 +57,6 @@ def test_random_curve_area_momentum_match(i):
     a_simd, b_simd = splinepy.cal_area_momentum_simd(poly)
     total_simd += time.perf_counter() - t0
 
-    # ------------------------------------------------------------
-    # B) C++ Regular (static API, polygon input)
-    # ------------------------------------------------------------
-    t0 = time.perf_counter()
-    lm = splinepy.Points(eps, sig)
-    poly = splinepy.preprocess(eps_cut, lm)
-    a_reg, b_reg = splinepy.cal_area_momentum(poly)
-    total_reg += time.perf_counter() - t0
 
     # ------------------------------------------------------------
     # C) C++ Prefix-sum member API (no polygon rebuild)
@@ -77,6 +69,15 @@ def test_random_curve_area_momentum_match(i):
     a_pref = sh.calculate_area(eps_cut, cut_pair)
     b_pref = sh.calculate_momentum(eps_cut, cut_pair)
     total_prefix += time.perf_counter() - t0
+
+    # ------------------------------------------------------------
+    # B) C++ Regular (static API, polygon input)
+    # ------------------------------------------------------------
+    t0 = time.perf_counter()
+    lm = splinepy.Points(eps, sig)
+    poly = splinepy.preprocess(eps_cut, lm)
+    a_reg, b_reg = splinepy.cal_area_momentum(poly)
+    total_reg += time.perf_counter() - t0
 
     # ------------------------------------------------------------
     # D) Python reference

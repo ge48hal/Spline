@@ -109,9 +109,6 @@ double SectionCal::moment(double eps_ca, double kappa) const
            M_ft * jac_ft * jac_ft;
 }
 
-// ---------------------------------------
-// if you still want this API, it WILL do both
-// ---------------------------------------
 std::pair<double,double>
 SectionCal::forceresidual_moment(double eps_ca, double kappa) const
 {
