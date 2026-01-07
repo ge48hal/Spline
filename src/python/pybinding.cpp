@@ -1,5 +1,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/numpy.h>
 
 #include "points/points.h"
 #include "inputreader/prep.h"
@@ -9,33 +10,110 @@
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(splinepy, m){
+PYBIND11_MODULE(splinepy, m) {
     m.doc() = "Spline / Shoelace bindings";
 
+    // ------------------------------------------------------------
+    // Points
+    // ------------------------------------------------------------
     py::class_<Points>(m, "Points")
         .def(py::init<>())
         .def(py::init<std::size_t>(), py::arg("n"))
-        .def(py::init<std::vector<double>, std::vector<double>>(), py::arg("epsilon_vec"), py::arg("sigma_vec"))
+        .def(py::init<std::vector<double>, std::vector<double>>(),
+             py::arg("epsilon_vec"), py::arg("sigma_vec"))
         .def("size", &Points::size)
         .def("add_point", &Points::push_back, py::arg("epsilon"), py::arg("sigma"))
         .def("get_epsilon", &Points::get_epsilon)
         .def("get_sigma", &Points::get_sigma);
 
-    m.def("preprocess", &preprocess::prep, "Preprocess polyline to polygon for Shoelace calculation"
-    , py::arg("eps_cut"), py::arg("lm"));
+    // ------------------------------------------------------------
+    // preprocess
+    // ------------------------------------------------------------
+    m.def("preprocess",
+          &preprocess::prep,
+          "Full preprocessing: returns polygon (Points) for Shoelace",
+          py::arg("eps_cut"), py::arg("lm"));
 
-    m.def("cal_area", &geom::Shoelace::calculateArea, "Calculate area using Shoelace formula"
-    , py::arg("points"));
-    m.def("cal_momentum", &geom::Shoelace::calculateMomentum, "Calculate momentum using Shoelace formula"
-    , py::arg("points"));
-    m.def("cal_area_momentum", &geom::Shoelace::calculateAreaAndMomentum , "Calculate area and momentum using Shoelace formula"
-    , py::arg("points"));
-    m.def("cal_area_momentum_simd", &geom::Shoelace::calculateAreaAndMomentum_simd, "Calculate area and momentum using Shoelace formula with SIMD"
-    , py::arg("points"));
+    m.def("preprocess_cut_pair",
+          &preprocess::_preprocess_polyline,
+          "Lightweight preprocessing: returns (index, sigma_at_eps_cut)",
+          py::arg("eps_cut"), py::arg("lm"));
 
-    py::class_ <CrossSection>(m, "CrossSection")
+    // ------------------------------------------------------------
+    // Shoelace
+    // ------------------------------------------------------------
+    using CutPair = std::pair<std::size_t, double>;
+
+    auto shoelace = py::class_<geom::Shoelace>(m, "Shoelace");
+
+    // member function pointer types (const)
+    using AreaMem = double (geom::Shoelace::*)(double, CutPair) const;
+    using MomMem  = double (geom::Shoelace::*)(double, CutPair) const;
+
+    // static function pointer types
+    using AreaStatic = double (*)(const Points&);
+    using MomStatic  = double (*)(const Points&);
+
+    shoelace
+        .def(py::init<const Points&>(),
+             py::arg("pts"),
+             // Shoelace stores a const reference to Points
+             py::keep_alive<1, 2>())
+
+        // member overload: (eps_cut, (idx, sigma_cut))
+        .def("calculate_area",
+             static_cast<AreaMem>(&geom::Shoelace::calculateArea),
+             py::arg("eps_cut"), py::arg("eps_cut_pair"))
+
+        .def("calculate_momentum",
+             static_cast<MomMem>(&geom::Shoelace::calculateMomentum),
+             py::arg("eps_cut"), py::arg("eps_cut_pair"))
+
+        // static overload: (Points) -> double
+        .def_static("area",
+             static_cast<AreaStatic>(&geom::Shoelace::calculateArea),
+             py::arg("points"))
+
+        .def_static("momentum",
+             static_cast<MomStatic>(&geom::Shoelace::calculateMomentum),
+             py::arg("points"));
+
+    // Convenience wrappers (stateless API)
+    m.def("cal_area",
+          [](double eps_cut, CutPair cut_pair, const Points& pts) {
+              geom::Shoelace sh(pts);
+              return sh.calculateArea(eps_cut, cut_pair);
+          },
+          "Convenience wrapper for member calculate_area",
+          py::arg("eps_cut"), py::arg("eps_cut_pair"), py::arg("points"));
+
+    m.def("cal_momentum",
+          [](double eps_cut, CutPair cut_pair, const Points& pts) {
+              geom::Shoelace sh(pts);
+              return sh.calculateMomentum(eps_cut, cut_pair);
+          },
+          "Convenience wrapper for member calculate_momentum",
+          py::arg("eps_cut"), py::arg("eps_cut_pair"), py::arg("points"));
+
+    m.def("cal_area_momentum",
+          &geom::Shoelace::calculateAreaAndMomentum,
+          "Calculate area and momentum (scalar)",
+          py::arg("points"));
+
+    m.def("cal_area_momentum_simd",
+          &geom::Shoelace::calculateAreaAndMomentum_simd,
+          "Calculate area and momentum (SIMD)",
+          py::arg("points"));
+
+    // ------------------------------------------------------------
+    // CrossSection
+    // ------------------------------------------------------------
+    py::class_<CrossSection>(m, "CrossSection")
         .def(py::init<double, double, double, double>(),
-        py::arg("h"), py::arg("l") = 160.0, py::arg("b") = 1.0, py::arg("E") = 60000.0)
+             py::arg("h"),
+             py::arg("l") = 160.0,
+             py::arg("b") = 1.0,
+             py::arg("E") = 60000.0)
         .def_readwrite("length_mm", &CrossSection::length_mm)
         .def_readwrite("height_mm", &CrossSection::height_mm)
         .def_readwrite("b_mm", &CrossSection::b_mm)
@@ -45,28 +123,50 @@ PYBIND11_MODULE(splinepy, m){
         .def("I_mm4", &CrossSection::I_mm4)
         .def("W_mm3", &CrossSection::W_mm3);
 
-    py::class_<SectionState>(m, "SectionState")
+    // ------------------------------------------------------------
+    // EpsSolveResult (NEW)
+    // ------------------------------------------------------------
+    py::class_<EpsSolveResult>(m, "EpsSolveResult")
         .def(py::init<>())
-        .def_readwrite("eps_cc", &SectionState::eps_cc)
-        .def_readwrite("eps_ft", &SectionState::eps_ft)
-        .def_readwrite("h_cc", &SectionState::h_cc)
-        .def_readwrite("h_ft", &SectionState::h_ft)
-        .def_readwrite("jac_cc", &SectionState::jac_cc)
-        .def_readwrite("jac_ft", &SectionState::jac_ft)
-        .def_readwrite("f_cc", &SectionState::f_cc)
-        .def_readwrite("f_ft", &SectionState::f_ft)
-        .def_readwrite("m_ca", &SectionState::m_ca);
+        .def_readonly("eps_ca",    &EpsSolveResult::eps_ca)
+        .def_readonly("kappa_eff", &EpsSolveResult::kappa_eff)
+        .def_readonly("residual",  &EpsSolveResult::residual)
+        .def_readonly("moment",    &EpsSolveResult::moment)
+        .def_readonly("iters",     &EpsSolveResult::iters)
+        .def_readonly("success",   &EpsSolveResult::success);
 
+    // ------------------------------------------------------------
+    // SectionCal
+    // ------------------------------------------------------------
     py::class_<SectionCal>(m, "SectionCal")
         .def(py::init<const CrossSection&, const Points&, const Points&>(),
              py::arg("cs"), py::arg("cc"), py::arg("ft"),
+             // SectionCal keeps references to its inputs
              py::keep_alive<1, 2>(),
              py::keep_alive<1, 3>(),
              py::keep_alive<1, 4>())
-        .def("forceresidual", &SectionCal::forceresidual,
+        .def("forceresidual",
+             &SectionCal::forceresidual,
              py::arg("eps_ca"), py::arg("kappa"))
-        .def("moment", &SectionCal::moment,
+        .def("moment",
+             &SectionCal::moment,
              py::arg("eps_ca"), py::arg("kappa"))
-        .def("eval", &SectionCal::eval,
-             py::arg("eps_ca"), py::arg("kappa"));
+        .def("forceresidual_moment",
+             &SectionCal::forceresidual_moment,
+             py::arg("eps_ca"), py::arg("kappa"))
+        .def("solve_eps_ca_for_kappa",
+             &SectionCal::solve_eps_ca_for_kappa,
+             py::arg("kappa_given"),
+             py::arg("eps_max"),
+             py::arg("rel_tol") = 1e-10,
+             py::arg("max_iter") = 80)
+         .def("solve_eps_ca_for_kappa_batch",
+              &SectionCal::solve_eps_ca_for_kappa_batch,
+              py::arg("kappa_vec"),
+              py::arg("eps_max"),
+              py::arg("rel_tol") = 1e-10,
+              py::arg("max_iter") = 80);
+
+
+
 }
