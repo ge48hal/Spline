@@ -120,7 +120,7 @@ SectionCal::forceresidual_moment(double eps_ca, double kappa) const
 }
 
 // ------------------------------------------------------------
-// eps_ca solver implementation (no eval 사용 X)
+// eps_ca solver implementation
 // ------------------------------------------------------------
 EpsSolveResult SectionCal::solve_eps_ca_for_kappa(
     double kappa_given,

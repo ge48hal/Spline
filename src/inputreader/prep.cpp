@@ -8,7 +8,7 @@ std::pair<std::size_t,double> _preprocess_polyline(double eps_cut, const Points&
 {
     std::size_t n = lm.size();
     if (n < 2) {
-        spdlog::error("Interpolation failed: polyline contains fewer than 2 points.");
+        //spdlog::error("Interpolation failed: polyline contains fewer than 2 points.");
         return {0, 0.0};
     }
 
@@ -19,8 +19,8 @@ std::pair<std::size_t,double> _preprocess_polyline(double eps_cut, const Points&
 
     // Check valid domain
     if (eps_cut < eps.front() || eps_cut > eps.back()) {
-        spdlog::error("eps_cut={} is out of range [{}, {}].",
-                eps_cut, eps.front(), eps.back());
+        //spdlog::error("eps_cut={} is out of range [{}, {}].",
+        //        eps_cut, eps.front(), eps.back());
         return {0, 0.0};
     }
 
@@ -35,7 +35,7 @@ std::pair<std::size_t,double> _preprocess_polyline(double eps_cut, const Points&
 
     // Bracketing indices must exist
     if (idx == 0 || idx >= n) {
-        spdlog::error("Failed to bracket eps_cut={}, idx={}", eps_cut, idx);
+        //spdlog::error("Failed to bracket eps_cut={}, idx={}", eps_cut, idx);
         return {0, 0.0};
     }
 
@@ -65,7 +65,7 @@ Points prep(double eps_cut, const Points& lm)
     std::pair<std::size_t,double> interp = _preprocess_polyline(eps_cut, lm);
 
     if (interp.first == 0u && interp.second == 0.0) {
-        spdlog::error("Preprocessing failed: could not compute intersection point.");
+       // spdlog::error("Preprocessing failed: could not compute intersection point.");
         return Points();
     }
 

@@ -176,7 +176,6 @@ double Shoelace::calculateMomentum(double eps_cut, std::pair<std::size_t, double
     const double a  = eps[idx - 1];
     const double sa = sig[idx - 1];
 
-    // 누적 prefix + 마지막 부분 적분 (a -> eps_cut, sa -> s_cut)
     return momentum_prefix[idx - 1] + seg_moment(a, eps_cut, sa, s_cut);
 }
 
