@@ -4,7 +4,7 @@
 namespace preprocess {
 
 // Computes sigma(eps_cut) from the polyline (epsilon[], sigma[])
-std::pair<std::size_t,double> _preprocess_polyline(double eps_cut, const Points& lm)
+std::pair<std::size_t,double> _preprocess_polyline(double eps_cut, const Points& lm, size_t hint)
 {
     std::size_t n = lm.size();
     if (n < 2) {
@@ -24,6 +24,19 @@ std::pair<std::size_t,double> _preprocess_polyline(double eps_cut, const Points&
         return {0, 0.0};
     }
 
+    const std::size_t i0   = (hint < 1 ? 1 : hint);
+    const std::size_t i_max = std::min(i0 + 4, n - 1);
+
+    for (std::size_t i = i0; i <= i_max; ++i) {
+        if (eps[i] == eps_cut) return {i, sig[i]};   // exact
+
+        if (eps[i] > eps_cut) {                      // bracket: (i-1, i)
+            const std::size_t j = i - 1;
+            const double t = (eps_cut - eps[j]) / (eps[i] - eps[j]);
+            return {i, sig[j] + t * (sig[i] - sig[j])};
+        }
+    }
+
     // Locate position using binary search 
     auto it = std::lower_bound(eps.begin(), eps.end(), eps_cut);
     std::size_t idx = static_cast<std::size_t>(std::distance(eps.begin(), it));
@@ -33,11 +46,11 @@ std::pair<std::size_t,double> _preprocess_polyline(double eps_cut, const Points&
         return {idx, sig[idx]};
     }
 
-    // Bracketing indices must exist
-    if (idx == 0 || idx >= n) {
-        //spdlog::error("Failed to bracket eps_cut={}, idx={}", eps_cut, idx);
-        return {0, 0.0};
-    }
+    // // Bracketing indices must exist
+    // if (idx == 0 || idx >= n) {
+    //     //spdlog::error("Failed to bracket eps_cut={}, idx={}", eps_cut, idx);
+    //     return {0, 0.0};
+    // }
 
     std::size_t i = idx - 1;
     std::size_t j = idx;

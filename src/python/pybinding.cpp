@@ -37,7 +37,7 @@ PYBIND11_MODULE(splinepy, m) {
     m.def("preprocess_cut_pair",
           &preprocess::_preprocess_polyline,
           "Lightweight preprocessing: returns (index, sigma_at_eps_cut)",
-          py::arg("eps_cut"), py::arg("lm"));
+          py::arg("eps_cut"), py::arg("lm"), py::arg("hint") = 1);
 
     // ------------------------------------------------------------
     // Shoelace

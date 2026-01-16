@@ -241,12 +241,11 @@ def test_speed_cpp_batch_vs_python_reference(setup_models, data):
     cal, ref = setup_models
     K, _, _ = data
     EPS_MAX = 0.008
-    NREP = 100
+    NREP = 1000
 
     cpp_times = []
     py_times = []
 
-    # ✅ Exclude K.tolist() conversion from timings
     K_list = K.tolist()
 
     # warm-up

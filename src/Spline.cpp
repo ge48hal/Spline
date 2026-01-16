@@ -9,18 +9,11 @@
 
 #include <spdlog/spdlog.h>
 
-// Project headers
 #include "kappamoment/crosssection.h"
 #include "points/points.h"
 #include "kappamoment/sectioncal.h"
 
-// ------------------------------------------------------------
-// Minimal CSV reader
-// Assumptions:
-//  - first line is header
-//  - comma-separated
-//  - no quoted fields
-// ------------------------------------------------------------
+
 static std::vector<double>
 read_csv_column_double(const std::string& path, const std::string& col)
 {
@@ -120,7 +113,7 @@ int main(int argc, char** argv)
         SectionCal cal(cs, cc, ft);
 
         // Maximum eps_ca (same as Python: eps_ca_max * 0.9999)
-        const double eps_max = 0.008 * 0.9999;
+        const double eps_max = 0.008 ;
 
         // ------------------------------------------------------------
         // 2) Load kappa vector
@@ -185,21 +178,6 @@ int main(int argc, char** argv)
 
         std::cout << std::fixed << std::setprecision(12);
         std::cout << "idx,kappa,success,iters,eps_ca,kappa_eff,residual,moment\n";
-
-        const std::size_t nprint = std::min<std::size_t>(sols.size(), 30);
-        for (std::size_t i = 0; i < nprint; ++i) {
-            const auto& s = sols[i];
-            std::cout
-                << i << ","
-                << K[i] << ","
-                << (s.success ? 1 : 0) << ","
-                << s.iters << ","
-                << s.eps_ca << ","
-                << s.kappa_eff << ","
-                << s.residual << ","
-                << s.moment
-                << "\n";
-        }
 
         return 0;
     }

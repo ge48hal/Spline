@@ -17,7 +17,7 @@
 //     - and the initial point [x0, y0] to close the polygon.
 
 namespace preprocess{
-    std::pair<std::size_t,double> _preprocess_polyline(double eps_cut, const Points& lm);
+    std::pair<std::size_t,double> _preprocess_polyline(double eps_cut, const Points& lm, size_t hint = 1);
     
     Points prep(double eps_cut, const Points& lm);
 }
