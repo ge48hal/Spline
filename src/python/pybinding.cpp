@@ -29,10 +29,7 @@ PYBIND11_MODULE(splinepy, m) {
     // ------------------------------------------------------------
     // preprocess
     // ------------------------------------------------------------
-    m.def("preprocess",
-          &preprocess::prep,
-          "Full preprocessing: returns polygon (Points) for Shoelace",
-          py::arg("eps_cut"), py::arg("lm"));
+
 
     m.def("preprocess_cut_pair",
           &preprocess::_preprocess_polyline,
@@ -67,43 +64,7 @@ PYBIND11_MODULE(splinepy, m) {
 
         .def("calculate_momentum",
              static_cast<MomMem>(&geom::Shoelace::calculateMomentum),
-             py::arg("eps_cut"), py::arg("eps_cut_pair"))
-
-        // static overload: (Points) -> double
-        .def_static("area",
-             static_cast<AreaStatic>(&geom::Shoelace::calculateArea),
-             py::arg("points"))
-
-        .def_static("momentum",
-             static_cast<MomStatic>(&geom::Shoelace::calculateMomentum),
-             py::arg("points"));
-
-    // Convenience wrappers (stateless API)
-    m.def("cal_area",
-          [](double eps_cut, CutPair cut_pair, const Points& pts) {
-              geom::Shoelace sh(pts);
-              return sh.calculateArea(eps_cut, cut_pair);
-          },
-          "Convenience wrapper for member calculate_area",
-          py::arg("eps_cut"), py::arg("eps_cut_pair"), py::arg("points"));
-
-    m.def("cal_momentum",
-          [](double eps_cut, CutPair cut_pair, const Points& pts) {
-              geom::Shoelace sh(pts);
-              return sh.calculateMomentum(eps_cut, cut_pair);
-          },
-          "Convenience wrapper for member calculate_momentum",
-          py::arg("eps_cut"), py::arg("eps_cut_pair"), py::arg("points"));
-
-    m.def("cal_area_momentum",
-          &geom::Shoelace::calculateAreaAndMomentum,
-          "Calculate area and momentum (scalar)",
-          py::arg("points"));
-
-    m.def("cal_area_momentum_simd",
-          &geom::Shoelace::calculateAreaAndMomentum_simd,
-          "Calculate area and momentum (SIMD)",
-          py::arg("points"));
+             py::arg("eps_cut"), py::arg("eps_cut_pair"));
 
     // ------------------------------------------------------------
     // CrossSection

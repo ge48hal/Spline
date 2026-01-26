@@ -68,14 +68,6 @@ def test_random_curve_m0_match(i):
     a_pref = sh.calculate_area(eps_cut, cut_pair)
     total_prefix += time.perf_counter() - t0
     
-    # ------------------------------------------------------------
-    # A) C++ Regular (polygon rebuild)
-    # ------------------------------------------------------------
-    t0 = time.perf_counter()
-    poly = splinepy.preprocess(eps_cut, lm)
-    a_reg, _ = splinepy.cal_area_momentum(poly)  # take m0 only
-    total_reg += time.perf_counter() - t0
-
 
     # ------------------------------------------------------------
     # C) Python Reference (m0 only)
@@ -88,14 +80,11 @@ def test_random_curve_m0_match(i):
     rtol = 1e-10
     atol = 1e-10
 
-    assert np.isclose(a_reg, a_ref, rtol=rtol, atol=atol)
     assert np.isclose(a_pref, a_ref, rtol=rtol, atol=atol)
-    assert np.isclose(a_pref, a_reg, rtol=rtol, atol=atol)
 
     # 4) Print totals once
     if i == N_TESTS - 1:
         print("\n========== Performance Summary ==========")
-        print(f"Total Regular time  : {total_reg:.6f} s")
         print(f"Total Prefix time   : {total_prefix:.6f} s")
         print(f"Total Python ref    : {total_ref:.6f} s")
         print("=========================================\n")

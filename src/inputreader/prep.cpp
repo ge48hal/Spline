@@ -66,39 +66,4 @@ std::pair<std::size_t,double> _preprocess_polyline(double eps_cut, const Points&
     return {idx, result};
 }
 
-// Preprocessing step equivalent to Python prep()
-// Constructs a closed polygon for shoelace: trim, add intersection point,
-// drop a vertical segment, and add the origin point.
-Points prep(double eps_cut, const Points& lm)
-{
-
-    const auto& eps = lm.get_epsilon();
-    const auto& sig = lm.get_sigma();
-
-    std::pair<std::size_t,double> interp = _preprocess_polyline(eps_cut, lm);
-
-    if (interp.first == 0u && interp.second == 0.0) {
-       // spdlog::error("Preprocessing failed: could not compute intersection point.");
-        return Points();
-    }
-
-    
-    Points out(interp.first + 3); // +3 for intersection, projection, and origin
-
-    // 1) Copy all points with epsilon < eps_cut
-
-    out.insert_range(eps, sig, 0, interp.first);
-
-    // 2) Add intersection point [eps_cut, sigma_interp]
-    out.push_back(eps_cut, interp.second);
-
-    // 3) Add projection to sigma = 0
-    out.push_back(eps_cut, 0.0);
-
-    // 4) Add starting point to close the polygon 
-    out.push_back(eps[0], sig[0]);
-
-    return out;
-}
-
 }

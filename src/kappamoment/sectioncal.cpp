@@ -113,14 +113,6 @@ SectionCal::forceresidual_moment(double eps_ca, double kappa) const
     const double eps_ft = std::abs(eps_ca + kappa * h_d);
     const double eps_dt = eps_cc + eps_ft;
 
-    // if (!(eps_dt > 0.0) || !std::isfinite(eps_dt) ||
-    //     !(eps_cc > 0.0) || !(eps_ft > 0.0) ||
-    //     !std::isfinite(eps_cc) || !std::isfinite(eps_ft))
-    // {
-    //     return {std::numeric_limits<double>::quiet_NaN(),
-    //             std::numeric_limits<double>::quiet_NaN()};
-    // }
-
     const double h_cc = std::abs((eps_cc / eps_dt) * h);
     const double h_ft = std::abs((eps_ft / eps_dt) * h);
 
@@ -260,11 +252,12 @@ SectionCal::solve_eps_ca_for_kappa_batch(
     const std::size_t N = kappa_vec.size();
     std::vector<EpsSolveResult> outv(N);
 
-    #pragma omp parallel for
+#pragma omp parallel default(none) shared(outv,N,kappa_vec,eps_max,rel_tol,max_iter)
+{
+    #pragma omp for schedule(dynamic)
     for (std::size_t i = 0; i < N; ++i) {
-        outv[i] = this->solve_eps_ca_for_kappa(
-            kappa_vec[i], eps_max, rel_tol, max_iter
-        );
+        outv[i] = this->solve_eps_ca_for_kappa(kappa_vec[i], eps_max, rel_tol, max_iter);
     }
+}
     return outv;
 }

@@ -18,17 +18,9 @@ namespace geom {
     public:
         Shoelace(const Points& pts);
 
-        static double calculateArea(const Points& points);
-
-        static double calculateMomentum(const Points& points);
-
         double calculateArea(double eps_cut, std::pair<size_t, double> eps_cut_pair) const;
 
         double calculateMomentum(double eps_cut, std::pair<size_t, double> eps_cut_pairs) const;
-
-        static std::pair<double,double> calculateAreaAndMomentum(const Points& points);
-
-        static std::pair<double,double> calculateAreaAndMomentum_simd(const Points& points);
 
     };
 
