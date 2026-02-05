@@ -21,9 +21,12 @@ struct EpsSolveResult {
 
 class SectionCal{
     public : 
-        SectionCal(const CrossSection&cs,const Points& cc,const Points& ft)
-            : cs(cs), cc(cc), ft(ft), sh_cc(cc), sh_ft(ft) {};
 
+        SectionCal(const Square&cross_section,const Points& cc,const Points& ft)
+            : cs(cross_section), cc(cc), ft(ft), sh_cc(cc,cross_section), sh_ft(ft,cross_section) {}
+
+        SectionCal(const Trapezoid&cross_section,const Points& cc,const Points& ft)
+            : cs(cross_section), cc(cc), ft(ft), sh_cc(cc,cross_section), sh_ft(ft,cross_section) {};
         double forceresidual(double eps_ca, double kappa) const;
 
         double moment(double eps_ca, double kappa) const;

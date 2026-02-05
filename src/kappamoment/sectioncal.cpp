@@ -30,39 +30,49 @@ static inline ClipOut clip_kappa(double eps_ca, double kappa,
 // -----------------------------
 double SectionCal::forceresidual(double eps_ca, double kappa) const
 {
-    const double h_u = cs.h_u_mm();
-    const double h_d = cs.h_d_mm();
-    const double h   = cs.height_mm;
+    if(cs.cs_type == CrossSection::CrossSectionType::SQUARE){
+        const double h_u = cs.h_u_mm();
+        const double h_d = cs.h_d_mm();
+        const double h   = cs.height_mm;
 
-    const double eps_cc = std::abs(eps_ca - kappa * h_u);
-    const double eps_ft = std::abs(eps_ca + kappa * h_d);
-    const double eps_dt = eps_cc + eps_ft;
+        const double eps_cc = std::abs(eps_ca - kappa * h_u);
+        const double eps_ft = std::abs(eps_ca + kappa * h_d);
+        const double eps_dt = eps_cc + eps_ft;
 
-    // don't need double check --- IGNORE ---
-    // if (!(eps_dt > 0.0) || !std::isfinite(eps_dt) ||
-    //     !(eps_cc > 0.0) || !(eps_ft > 0.0) ||
-    //     !std::isfinite(eps_cc) || !std::isfinite(eps_ft))
-    // {
-    //     return std::numeric_limits<double>::quiet_NaN();
-    // }
+        // don't need double check --- IGNORE ---
+        // if (!(eps_dt > 0.0) || !std::isfinite(eps_dt) ||
+        //     !(eps_cc > 0.0) || !(eps_ft > 0.0) ||
+        //     !std::isfinite(eps_cc) || !std::isfinite(eps_ft))
+        // {
+        //     return std::numeric_limits<double>::quiet_NaN();
+        // }
 
-    const double h_cc = std::abs((eps_cc / eps_dt) * h);
-    const double h_ft = std::abs((eps_ft / eps_dt) * h);
+        const double h_cc = std::abs((eps_cc / eps_dt) * h);
+        const double h_ft = std::abs((eps_ft / eps_dt) * h);
 
-    const double jac_cc = h_cc / eps_cc;
-    const double jac_ft = h_ft / eps_ft;
+        const double jac_cc = h_cc / eps_cc;
+        const double jac_ft = h_ft / eps_ft;
 
-    // preprocess + AREA only
-    auto cut_cc = preprocess::_preprocess_polyline(eps_cc, cc);
-    auto cut_ft = preprocess::_preprocess_polyline(eps_ft, ft);
+        // preprocess + AREA only
+        auto cut_cc = preprocess::_preprocess_polyline(eps_cc, cc);
+        auto cut_ft = preprocess::_preprocess_polyline(eps_ft, ft);
 
-    const double A_cc = sh_cc.calculateArea(eps_cc, cut_cc);
-    const double A_ft = sh_ft.calculateArea(eps_ft, cut_ft);
+        const double A_cc = sh_cc.calculateArea(eps_cc, cut_cc);
+        const double A_ft = sh_ft.calculateArea(eps_ft, cut_ft);
 
-    const double f_cc = A_cc * jac_cc;
-    const double f_ft = A_ft * jac_ft;
+        const double f_cc = A_cc * jac_cc;
+        const double f_ft = A_ft * jac_ft;
 
-    return f_cc - f_ft;
+        return f_cc - f_ft;
+    } else if(cs.cs_type == CrossSection::CrossSectionType::TRAPEZOID){
+        // Trapezoid case
+        const double f_cc = 1 ;
+        const double f_ft = 1 ;
+
+        return f_cc - f_ft;
+    } else {
+        return -1;
+    }
 }
 
 // -----------------------------
